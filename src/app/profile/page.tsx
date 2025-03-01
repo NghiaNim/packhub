@@ -4,12 +4,44 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// Mock user data (would come from API in real app)
-const MOCK_USER = {
-  id: '1',
-  fullName: 'Luu Pham',
-  username: 'luupham',
-  email: 'ntn6039@nyu.edu',
+// Define types for our user data
+type Trip = {
+  id: string;
+  destination: string;
+  date: string;
+  duration?: string;
+  groupId?: string;
+};
+
+type User = {
+  id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  dateOfBirth: string;
+  gender: string;
+  bio: string;
+  phoneNumber: string;
+  emergencyContact: {
+    name: string;
+    relationship: string;
+    phoneNumber: string;
+  };
+  travelPreferences: {
+    accommodationTypes: string[];
+    travelStyles: string[];
+    languages: string[];
+  };
+  pastTrips: Trip[];
+  upcomingTrips: Trip[];
+};
+
+// Initial empty user state
+const EMPTY_USER: User = {
+  id: '',
+  fullName: '',
+  username: '',
+  email: '',
   dateOfBirth: '',
   gender: '',
   bio: '',
@@ -20,47 +52,137 @@ const MOCK_USER = {
     phoneNumber: ''
   },
   travelPreferences: {
-    accommodationTypes: ['Hostel', 'Budget Hotel'],
-    travelStyles: ['Backpacking', 'Cultural'],
-    languages: ['English']
+    accommodationTypes: [],
+    travelStyles: [],
+    languages: []
   },
-  pastTrips: [
-    {
-      id: '101',
-      destination: 'Barcelona, Spain',
-      date: '2023-05-10',
-      duration: '7 days'
-    }
-  ],
-  upcomingTrips: [
-    {
-      id: '201',
-      destination: 'Tokyo, Japan',
-      date: '2024-07-15',
-      groupId: '2'
-    }
-  ]
+  pastTrips: [],
+  upcomingTrips: []
 };
 
 export default function Profile() {
   const router = useRouter();
-  const [user, setUser] = useState(MOCK_USER);
+  const [user, setUser] = useState(EMPTY_USER);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState(MOCK_USER);
+  const [editedUser, setEditedUser] = useState(EMPTY_USER);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   
   useEffect(() => {
-    // Simulate API fetch
-    const fetchUserData = () => {
-      // In a real app, this would fetch user data from API
-      setTimeout(() => {
-        setUser(MOCK_USER);
-        setEditedUser(MOCK_USER);
+    // Check if user is logged in
+    const checkAuth = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      setIsLoggedIn(loggedIn);
+      
+      if (!loggedIn) {
+        setShowLoginModal(true);
         setIsLoading(false);
-      }, 500);
+        return;
+      }
+      
+      // Get user ID from localStorage
+      const userId = localStorage.getItem('userId');
+      
+      if (!userId) {
+        console.error('User ID not found in localStorage');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Fetch user data from API
+      fetchUserData(userId);
     };
     
-    fetchUserData();
+    const fetchUserData = async (userId: string) => {
+      try {
+        // Fetch user profile from API
+        const response = await fetch(`/api/users/${userId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        
+        const userData = await response.json();
+        
+        // Transform API data to match our frontend model
+        const transformedUser = {
+          id: userData.id,
+          fullName: userData.name || '',
+          username: userData.username || '',
+          email: userData.email || '',
+          dateOfBirth: userData.date_of_birth || '',
+          gender: userData.gender || '',
+          bio: userData.bio || '',
+          phoneNumber: userData.phone_number || '',
+          emergencyContact: {
+            name: userData.emergency_contact?.name || '',
+            relationship: userData.emergency_contact?.relationship || '',
+            phoneNumber: userData.emergency_contact?.phone_number || ''
+          },
+          travelPreferences: {
+            accommodationTypes: userData.travel_preferences?.accommodation_types || [],
+            travelStyles: userData.travel_preferences?.travel_styles || [],
+            languages: userData.travel_preferences?.languages || []
+          },
+          pastTrips: userData.past_trips || [],
+          upcomingTrips: userData.upcoming_trips || []
+        };
+        
+        setUser(transformedUser);
+        setEditedUser(transformedUser);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // If API fails, fall back to mock data for development
+        const mockUser = {
+          id: '1',
+          fullName: 'Luu Pham',
+          username: 'luupham',
+          email: 'ntn6039@nyu.edu',
+          dateOfBirth: '',
+          gender: '',
+          bio: '',
+          phoneNumber: '',
+          emergencyContact: {
+            name: '',
+            relationship: '',
+            phoneNumber: ''
+          },
+          travelPreferences: {
+            accommodationTypes: ['Hostel', 'Budget Hotel'],
+            travelStyles: ['Backpacking', 'Cultural'],
+            languages: ['English']
+          },
+          pastTrips: [
+            {
+              id: '101',
+              destination: 'Barcelona, Spain',
+              date: '2023-05-10',
+              duration: '7 days'
+            }
+          ],
+          upcomingTrips: [
+            {
+              id: '201',
+              destination: 'Tokyo, Japan',
+              date: '2024-07-15',
+              groupId: '2'
+            }
+          ]
+        };
+        
+        setUser(mockUser);
+        setEditedUser(mockUser);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuth();
+    
+    // Add listener for auth changes
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, []);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -87,25 +209,56 @@ export default function Profile() {
     setIsLoading(true);
     
     try {
-      // In a real app, this would send updated data to API
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Get user ID from localStorage
+      const userId = localStorage.getItem('userId');
+      
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+      
+      // Prepare data for API
+      const updateData = {
+        bio: editedUser.bio,
+        profile_image_url: '', // Add if you have this field
+        phone_number: editedUser.phoneNumber,
+        gender: editedUser.gender
+        // Add other fields as needed
+      };
+      
+      // Send update to API
+      const response = await fetch(`/api/users/${userId}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
       
       // Update local state
       setUser(editedUser);
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
   
-  if (isLoading && !isEditing) {
+  const handleLogin = () => {
+    router.push('/login?redirect=/profile');
+  };
+  
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
+          <p className="text-black">Loading profile...</p>
         </div>
       </div>
     );
