@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Backpacker Connect
+
+A web application that connects backpackers and travelers who want to explore destinations together. Find travel companions, create groups, plan itineraries, and connect with like-minded travelers.
+
+## Features
+
+- User authentication and profile customization
+- Post travel intentions and find matching travelers
+- Create and join travel groups
+- Direct messaging and group chats
+- AI-assisted itinerary planning
+- Social features (reviews, ratings, travel stories)
+
+## Tech Stack
+
+- **Frontend**: Next.js with TypeScript, Tailwind CSS
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB
+- **Authentication**: JWT
+
+## Project Structure
+
+```
+backpacker-connect/
+├── src/                  # Next.js frontend
+│   ├── app/              # App router pages
+│   ├── components/       # React components
+│   └── ...
+├── backend/              # FastAPI backend
+│   ├── app/              # API code
+│   │   ├── main.py       # Main application
+│   │   ├── database.py   # Database connection
+│   │   ├── models/       # Pydantic models
+│   │   ├── routes/       # API routes
+│   │   └── ...
+│   └── requirements.txt  # Python dependencies
+└── ...
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v18+)
+- Python (v3.9+)
+- MongoDB
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Frontend Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Navigate to the project directory:
+   ```
+   cd backpacker-connect
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-## Learn More
+3. Run the development server:
+   ```
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Backend Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Navigate to the backend directory:
+   ```
+   cd backpacker-connect/backend
+   ```
 
-## Deploy on Vercel
+2. Create a virtual environment:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Copy the example environment file:
+   ```
+   cp .env.example .env
+   ```
+
+5. Edit the `.env` file with your configuration.
+
+6. Run the API server:
+   ```
+   uvicorn app.main:app --reload
+   ```
+
+7. API documentation will be available at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+## License
+
+MIT
