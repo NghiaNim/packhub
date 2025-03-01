@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import AuthOverlay from '@/components/auth/AuthOverlay';
 
 // Mock data for conversations (would be fetched from API in real app)
 const MOCK_CONVERSATIONS = [
@@ -115,33 +119,12 @@ const MOCK_MESSAGES = {
 export default function Messages() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  // Check if user is logged in
-  useEffect(() => {
-    const checkAuth = () => {
-      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      setIsLoggedIn(loggedIn);
-      
-      if (!loggedIn) {
-        setShowLoginModal(true);
-      }
-    };
-    
-    checkAuth();
-    setLoading(false);
-    
-    // Add listener for auth changes
-    window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
-  }, []);
   
   // Handle conversation selection from URL params
   useEffect(() => {
@@ -170,6 +153,8 @@ export default function Messages() {
         setSelectedConversation(groupConversation.id);
       }
     }
+    
+    setLoading(false);
   }, [searchParams, conversations]);
   
   // Load messages when conversation is selected
@@ -222,10 +207,6 @@ export default function Messages() {
     setNewMessage('');
   };
   
-  const handleLogin = () => {
-    router.push('/login?redirect=/messages');
-  };
-  
   const getOtherParticipant = (conversation: any) => {
     if (conversation.type === 'direct') {
       return conversation.participants.find((p: any) => p.id !== '1'); // Not current user
@@ -233,57 +214,75 @@ export default function Messages() {
     return null;
   };
   
+  const getInitials = (name: string) => {
+    if (!name) return '';
+    const parts = name.split(' ');
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-black">Loading messages...</p>
+          <div className="w-16 h-16 border-4 border-slate-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-700">Loading messages...</p>
         </div>
       </div>
     );
   }
   
-  return (
-    <div className="min-h-screen bg-gray-50">
+  const messageContent = (
+    <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-black">Messages</h1>
+        <h1 className="text-3xl font-bold mb-6 text-slate-900">Messages</h1>
         
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <Card className="overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
             {/* Conversations list */}
-            <div className="border-r border-gray-200 md:col-span-1">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-bold text-black">Conversations</h2>
-              </div>
+            <div className="border-r border-slate-200 md:col-span-1">
+              <CardHeader className="px-4 py-3 border-b border-slate-200">
+                <CardTitle className="text-lg font-semibold">Conversations</CardTitle>
+              </CardHeader>
               <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
                 {conversations.map(conversation => (
                   <div 
                     key={conversation.id}
                     onClick={() => setSelectedConversation(conversation.id)}
-                    className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 ${
-                      selectedConversation === conversation.id ? 'bg-blue-50' : ''
+                    className={`p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 ${
+                      selectedConversation === conversation.id ? 'bg-slate-100' : ''
                     }`}
                   >
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
+                      <Avatar className="h-10 w-10 mr-3">
+                        <AvatarImage src={
+                          conversation.type === 'direct' 
+                            ? getOtherParticipant(conversation)?.image 
+                            : '/placeholder.jpg'
+                        } />
+                        <AvatarFallback className="bg-slate-200 text-slate-700">
+                          {conversation.type === 'direct' 
+                            ? getInitials(getOtherParticipant(conversation)?.name || '')
+                            : conversation.groupName?.charAt(0) || 'G'}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <p className="font-medium text-black">
+                          <p className="font-medium text-slate-900">
                             {conversation.type === 'direct' 
                               ? getOtherParticipant(conversation)?.name 
                               : conversation.groupName}
                           </p>
                           {conversation.unreadCount > 0 && (
-                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                            <span className="bg-slate-800 text-white text-xs px-2 py-1 rounded-full">
                               {conversation.unreadCount}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-slate-500 truncate">
                           {conversation.lastMessage.content}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-slate-400">
                           {new Date(conversation.lastMessage.timestamp).toLocaleString()}
                         </p>
                       </div>
@@ -298,11 +297,31 @@ export default function Messages() {
               {selectedConversation ? (
                 <>
                   {/* Conversation header */}
-                  <div className="p-4 border-b border-gray-200">
+                  <div className="p-4 border-b border-slate-200">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
+                      <Avatar className="h-10 w-10 mr-3">
+                        {(() => {
+                          const conversation = conversations.find(c => c.id === selectedConversation);
+                          if (!conversation) return null;
+                          
+                          return (
+                            <>
+                              <AvatarImage src={
+                                conversation.type === 'direct' 
+                                  ? getOtherParticipant(conversation)?.image 
+                                  : '/placeholder.jpg'
+                              } />
+                              <AvatarFallback className="bg-slate-200 text-slate-700">
+                                {conversation.type === 'direct' 
+                                  ? getInitials(getOtherParticipant(conversation)?.name || '')
+                                  : conversation.groupName?.charAt(0) || 'G'}
+                              </AvatarFallback>
+                            </>
+                          );
+                        })()}
+                      </Avatar>
                       <div>
-                        <p className="font-medium text-black">
+                        <p className="font-medium text-slate-900">
                           {(() => {
                             const conversation = conversations.find(c => c.id === selectedConversation);
                             if (!conversation) return '';
@@ -311,7 +330,7 @@ export default function Messages() {
                               : conversation.groupName;
                           })()}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-slate-500">
                           {(() => {
                             const conversation = conversations.find(c => c.id === selectedConversation);
                             if (!conversation) return '';
@@ -332,15 +351,33 @@ export default function Messages() {
                           key={message.id}
                           className={`flex ${message.senderId === '1' ? 'justify-end' : 'justify-start'}`}
                         >
+                          {message.senderId !== '1' && (
+                            <Avatar className="h-8 w-8 mr-2 mt-1 hidden sm:block">
+                              <AvatarImage src="/placeholder.jpg" />
+                              <AvatarFallback className="bg-slate-200 text-slate-700 text-xs">
+                                {(() => {
+                                  const conversation = conversations.find(c => c.id === selectedConversation);
+                                  if (!conversation) return '';
+                                  
+                                  if (conversation.type === 'direct') {
+                                    return getInitials(getOtherParticipant(conversation)?.name || '');
+                                  } else {
+                                    const sender = conversation.participants.find(p => p.id === message.senderId);
+                                    return getInitials(sender?.name || '');
+                                  }
+                                })()}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
                           <div
-                            className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl rounded-lg p-3 ${
+                            className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg rounded-lg p-3 ${
                               message.senderId === '1'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-black'
+                                ? 'bg-slate-800 text-white'
+                                : 'bg-slate-100 text-slate-900'
                             }`}
                           >
                             <p>{message.content}</p>
-                            <p className={`text-xs mt-1 ${message.senderId === '1' ? 'text-blue-100' : 'text-gray-500'}`}>
+                            <p className={`text-xs mt-1 ${message.senderId === '1' ? 'text-slate-300' : 'text-slate-500'}`}>
                               {new Date(message.timestamp).toLocaleString()}
                             </p>
                           </div>
@@ -351,61 +388,51 @@ export default function Messages() {
                   </div>
                   
                   {/* Message input */}
-                  <div className="p-4 border-t border-gray-200">
-                    <form onSubmit={handleSendMessage} className="flex">
-                      <input
+                  <div className="p-4 border-t border-slate-200">
+                    <form onSubmit={handleSendMessage} className="flex gap-2">
+                      <Input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1"
                       />
-                      <button
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-md"
-                      >
+                      <Button type="submit">
                         Send
-                      </button>
+                      </Button>
                     </form>
                   </div>
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <p className="text-black mb-4">Select a conversation to start messaging</p>
+                  <div className="text-center p-6">
+                    <div className="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-10 w-10 text-slate-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                        />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-medium text-slate-900 mb-2">No conversation selected</h3>
+                    <p className="text-slate-500">Select a conversation to start messaging</p>
                   </div>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </Card>
       </div>
-      
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4 text-black">Login Required</h2>
-            <p className="text-black mb-6">
-              You need to be logged in to view and send messages. Please log in or create an account.
-            </p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => router.push('/')}
-                className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50"
-              >
-                Go Home
-              </button>
-              <button
-                onClick={handleLogin}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Log In
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
+  
+  return <AuthOverlay>{messageContent}</AuthOverlay>;
 } 

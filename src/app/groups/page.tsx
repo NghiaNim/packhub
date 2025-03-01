@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import AuthOverlay from '@/components/auth/AuthOverlay';
 
 // Mock data for user's groups
 const MY_GROUPS = [
@@ -88,110 +91,115 @@ export default function Groups() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-black">Loading your groups...</p>
+          <div className="w-16 h-16 border-4 border-slate-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-700">Loading your groups...</p>
         </div>
       </div>
     );
   }
   
-  return (
+  const groupsContent = (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header with Create Group Button */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-black">My Travel Groups</h1>
-          <Link 
-            href="/groups/create" 
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
-          >
+          <h1 className="text-3xl font-bold text-slate-900">My Travel Groups</h1>
+          <Button asChild>
+            <Link href="/groups/create">
             Create New Group
           </Link>
+          </Button>
         </div>
         
         {/* My Groups Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-black mb-4">Groups I'm In</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Groups I'm In</h2>
           
           {MY_GROUPS.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {MY_GROUPS.map((group) => (
-                <Link href={`/groups/${group.id}`} key={group.id}>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="h-40 bg-gray-200"></div>
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-bold text-black">{group.name}</h3>
+                <Link href={`/groups/${group.id}`} key={group.id} className="block">
+                  <Card className="h-full hover:shadow-md transition-shadow">
+                    <div className="h-40 bg-slate-200"></div>
+                    <CardHeader className="p-4 pb-0">
+                      <div className="flex justify-between items-start">
+                        <h3 className="text-xl font-bold text-slate-900">{group.name}</h3>
                         {group.isAdmin && (
-                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                          <span className="bg-slate-100 text-slate-800 text-xs px-2 py-1 rounded">
                             Admin
                           </span>
                         )}
                       </div>
-                      <p className="text-black mb-2">{group.destination}</p>
-                      <p className="text-black text-sm mb-3">
+                    </CardHeader>
+                    <CardContent className="p-4 pt-2">
+                      <p className="text-slate-900 mb-2">{group.destination}</p>
+                      <p className="text-slate-700 text-sm mb-3">
                         {new Date(group.startDate).toLocaleDateString()} - {new Date(group.endDate).toLocaleDateString()}
                       </p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-black text-sm">
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0 flex justify-between items-center">
+                      <span className="text-slate-700 text-sm">
                           {group.memberCount}/{group.maxMembers} members
                         </span>
-                        <span className="text-blue-600 text-sm font-medium">View details →</span>
-                      </div>
-                    </div>
-                  </div>
+                      <span className="text-slate-800 text-sm font-medium">View details →</span>
+                    </CardFooter>
+                  </Card>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="bg-gray-50 rounded-lg p-8 text-center">
-              <h3 className="text-xl font-medium text-black mb-2">You're not in any groups yet</h3>
-              <p className="text-black mb-6">Join a group or create your own to start connecting with fellow travelers</p>
-              <Link 
-                href="/explore" 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded mr-4"
-              >
+            <Card className="p-8 text-center">
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-medium text-slate-900 mb-2">You're not in any groups yet</h3>
+                <p className="text-slate-700 mb-6">Join a group or create your own to start connecting with fellow travelers</p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Button asChild>
+                    <Link href="/explore">
                 Explore Groups
               </Link>
-              <Link 
-                href="/groups/create" 
-                className="border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-6 rounded"
-              >
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/groups/create">
                 Create a Group
               </Link>
+                  </Button>
             </div>
+              </CardContent>
+            </Card>
           )}
         </section>
         
         {/* Pending Requests Section */}
         {PENDING_GROUPS.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-black mb-4">Pending Requests</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">Pending Requests</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {PENDING_GROUPS.map((group) => (
-                <div key={group.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="h-40 bg-gray-200"></div>
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-xl font-bold text-black">{group.name}</h3>
-                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                <Card key={group.id} className="h-full">
+                  <div className="h-40 bg-slate-200"></div>
+                  <CardHeader className="p-4 pb-0">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-bold text-slate-900">{group.name}</h3>
+                      <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded">
                         Pending
                       </span>
                     </div>
-                    <p className="text-black mb-2">{group.destination}</p>
-                    <p className="text-black text-sm mb-3">
+                  </CardHeader>
+                  <CardContent className="p-4 pt-2">
+                    <p className="text-slate-900 mb-2">{group.destination}</p>
+                    <p className="text-slate-700 text-sm mb-3">
                       {new Date(group.startDate).toLocaleDateString()} - {new Date(group.endDate).toLocaleDateString()}
                     </p>
-                    <p className="text-black text-sm mb-3">
+                    <p className="text-slate-700 text-sm mb-3">
                       Requested on {new Date(group.requestDate).toLocaleDateString()}
                     </p>
-                    <div className="flex space-x-2">
-                      <button className="text-red-600 text-sm font-medium hover:text-red-800">
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0">
+                    <Button variant="ghost" className="text-red-600 hover:text-red-800 hover:bg-red-50 p-0 h-auto">
                         Cancel Request
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                    </Button>
+                  </CardFooter>
+                </Card>
               ))}
             </div>
           </section>
@@ -199,26 +207,28 @@ export default function Groups() {
         
         {/* Recommended Groups Section */}
         <section>
-          <h2 className="text-2xl font-bold text-black mb-4">Recommended for You</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Recommended for You</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {RECOMMENDED_GROUPS.map((group) => (
-              <Link href={`/groups/${group.id}`} key={group.id}>
-                <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="h-40 bg-gray-200"></div>
-                  <div className="p-4">
-                    <h3 className="text-xl font-bold text-black mb-2">{group.name}</h3>
-                    <p className="text-black mb-2">{group.destination}</p>
-                    <p className="text-black text-sm mb-3">
+              <Link href={`/groups/${group.id}`} key={group.id} className="block">
+                <Card className="h-full hover:shadow-md transition-shadow">
+                  <div className="h-40 bg-slate-200"></div>
+                  <CardHeader className="p-4 pb-0">
+                    <h3 className="text-xl font-bold text-slate-900">{group.name}</h3>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-2">
+                    <p className="text-slate-900 mb-2">{group.destination}</p>
+                    <p className="text-slate-700 text-sm mb-3">
                       {new Date(group.startDate).toLocaleDateString()} - {new Date(group.endDate).toLocaleDateString()}
                     </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-black text-sm">
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0 flex justify-between items-center">
+                    <span className="text-slate-700 text-sm">
                         {group.memberCount}/{group.maxMembers} members
                       </span>
-                      <span className="text-blue-600 text-sm font-medium">View details →</span>
-                    </div>
-                  </div>
-                </div>
+                    <span className="text-slate-800 text-sm font-medium">View details →</span>
+                  </CardFooter>
+                </Card>
               </Link>
             ))}
           </div>
@@ -226,4 +236,6 @@ export default function Groups() {
       </div>
     </div>
   );
+  
+  return <AuthOverlay>{groupsContent}</AuthOverlay>;
 } 

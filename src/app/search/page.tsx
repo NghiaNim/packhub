@@ -4,6 +4,11 @@ import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SearchBar from '@/components/SearchBar';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import AuthOverlay from '@/components/auth/AuthOverlay';
 
 // Mock data for travel groups
 const MOCK_GROUPS = [
@@ -121,8 +126,8 @@ export default function SearchResults() {
     setFilteredGroups(filtered);
   }, [destination]);
   
-  return (
-    <div className="min-h-screen bg-gray-50">
+  const searchContent = (
+    <div className="min-h-screen bg-slate-50">
       {/* Search bar at the top */}
       <div className="bg-white shadow-md py-4">
         <div className="container mx-auto px-4">
@@ -133,12 +138,12 @@ export default function SearchResults() {
       {/* Search results */}
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">
+          <h1 className="text-2xl font-bold mb-2 text-slate-900">
             {filteredGroups.length > 0 
               ? `Travel groups in ${destination || 'all destinations'}`
               : 'No travel groups found'}
           </h1>
-          <p className="text-black">
+          <p className="text-slate-700">
             {dates && `Dates: ${dates}`}
             {dates && travelers && ' • '}
             {travelers && `${travelers}`}
@@ -148,50 +153,56 @@ export default function SearchResults() {
         {/* Groups list */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredGroups.map(group => (
-            <Link href={`/groups/${group.id}`} key={group.id}>
-              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-40 bg-gray-300"></div>
-                <div className="p-4">
+            <Link href={`/groups/${group.id}`} key={group.id} className="block">
+              <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="h-40 bg-slate-200"></div>
+                <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-xl font-bold">{group.name}</h2>
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                    <h2 className="text-xl font-bold text-slate-900">{group.name}</h2>
+                    <Badge variant="outline" className="bg-slate-100">
                       {group.memberCount}/{group.maxMembers} members
-                    </span>
+                    </Badge>
                   </div>
-                  <p className="text-black mb-2">{group.destination}</p>
-                  <p className="text-sm text-black mb-3">
+                  <p className="text-slate-900 mb-2">{group.destination}</p>
+                  <p className="text-sm text-slate-700 mb-3">
                     {new Date(group.startDate).toLocaleDateString()} - {new Date(group.endDate).toLocaleDateString()}
                   </p>
-                  <p className="text-black mb-4 line-clamp-2">{group.description}</p>
+                  <p className="text-slate-700 mb-4 line-clamp-2">{group.description}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full mr-2"></div>
-                      <span className="text-sm text-black">{group.creator.name}</span>
+                      <Avatar className="w-8 h-8 mr-2">
+                        <AvatarImage src={group.creator.image} />
+                        <AvatarFallback className="bg-slate-200 text-slate-700">
+                          {group.creator.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-slate-700">{group.creator.name}</span>
                     </div>
                     {group.requiresApproval && (
-                      <span className="text-xs text-black">Approval required</span>
+                      <span className="text-xs text-slate-600">Approval required</span>
                     )}
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>
         
         {/* No results message */}
         {filteredGroups.length === 0 && (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-medium mb-2">No travel groups found for this destination</h3>
-            <p className="text-black mb-6">Try searching for a different destination or create your own group!</p>
-            <Link 
-              href="/groups/create" 
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md"
-            >
-              Create a Group
-            </Link>
-          </div>
+          <Card className="text-center py-12 px-6">
+            <CardContent className="pt-6">
+              <h3 className="text-xl font-medium mb-2 text-slate-900">No travel groups found for this destination</h3>
+              <p className="text-slate-700 mb-6">Try searching for a different destination or create your own group!</p>
+              <Button asChild>
+                <Link href="/groups/create">Create a Group</Link>
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
   );
+  
+  return <AuthOverlay>{searchContent}</AuthOverlay>;
 } 
