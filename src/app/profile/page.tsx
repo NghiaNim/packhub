@@ -26,6 +26,7 @@ const MOCK_USER = {
   },
   pastTrips: [
     {
+      id: '101',
       destination: 'Barcelona, Spain',
       date: '2023-05-10',
       duration: '7 days'
@@ -33,6 +34,7 @@ const MOCK_USER = {
   ],
   upcomingTrips: [
     {
+      id: '201',
       destination: 'Tokyo, Japan',
       date: '2024-07-15',
       groupId: '2'
@@ -320,24 +322,24 @@ export default function Profile() {
                 <h2 className="text-2xl font-bold text-black mb-6">Basic Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Full Name</h3>
+                    <h3 className="text-sm font-medium text-black mb-1">Full Name</h3>
                     <p className="text-black font-medium">{user.fullName}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Username</h3>
+                    <h3 className="text-sm font-medium text-black mb-1">Username</h3>
                     <p className="text-black font-medium">@{user.username}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Date of Birth</h3>
-                    <p className="text-gray-700">{user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided'}</p>
+                    <h3 className="text-sm font-medium text-black mb-1">Date of Birth</h3>
+                    <p className="text-black">{user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided'}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Gender</h3>
-                    <p className="text-gray-700">{user.gender || 'Not provided'}</p>
+                    <h3 className="text-sm font-medium text-black mb-1">Gender</h3>
+                    <p className="text-black">{user.gender || 'Not provided'}</p>
                   </div>
                   <div className="md:col-span-2">
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Bio</h3>
-                    <p className="text-gray-700">{user.bio || 'No bio provided'}</p>
+                    <h3 className="text-sm font-medium text-black mb-1">Bio</h3>
+                    <p className="text-black">{user.bio || 'No bio provided'}</p>
                   </div>
                 </div>
               </div>
@@ -349,12 +351,12 @@ export default function Profile() {
                 <h2 className="text-2xl font-bold text-black mb-6">Contact Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Email</h3>
+                    <h3 className="text-sm font-medium text-black mb-1">Email</h3>
                     <p className="text-black font-medium">{user.email}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Phone Number</h3>
-                    <p className="text-gray-700">{user.phoneNumber || 'Not provided'}</p>
+                    <h3 className="text-sm font-medium text-black mb-1">Phone Number</h3>
+                    <p className="text-black">{user.phoneNumber || 'Not provided'}</p>
                   </div>
                 </div>
               </div>
@@ -367,20 +369,20 @@ export default function Profile() {
                 {user.emergencyContact.name ? (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-600 mb-1">Name</h3>
+                      <h3 className="text-sm font-medium text-black mb-1">Name</h3>
                       <p className="text-black font-medium">{user.emergencyContact.name}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-600 mb-1">Relationship</h3>
-                      <p className="text-gray-700">{user.emergencyContact.relationship}</p>
+                      <h3 className="text-sm font-medium text-black mb-1">Relationship</h3>
+                      <p className="text-black">{user.emergencyContact.relationship}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-600 mb-1">Phone Number</h3>
-                      <p className="text-gray-700">{user.emergencyContact.phoneNumber}</p>
+                      <h3 className="text-sm font-medium text-black mb-1">Phone Number</h3>
+                      <p className="text-black">{user.emergencyContact.phoneNumber}</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-gray-700">No emergency contact provided</p>
+                  <p className="text-black">No emergency contact provided</p>
                 )}
               </div>
             </div>
@@ -391,45 +393,45 @@ export default function Profile() {
                 <h2 className="text-2xl font-bold text-black mb-6">Travel Preferences</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Accommodation Types</h3>
+                    <h3 className="text-sm font-medium text-black mb-1">Accommodation Types</h3>
                     {user.travelPreferences.accommodationTypes.length > 0 ? (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {user.travelPreferences.accommodationTypes.map((type, index) => (
-                          <span key={index} className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">
+                          <span key={index} className="bg-gray-100 text-black px-2 py-1 rounded-full text-sm">
                             {type}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-700">Not specified</p>
+                      <p className="text-black">Not specified</p>
                     )}
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Travel Styles</h3>
+                    <h3 className="text-sm font-medium text-black mb-1">Travel Styles</h3>
                     {user.travelPreferences.travelStyles.length > 0 ? (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {user.travelPreferences.travelStyles.map((style, index) => (
-                          <span key={index} className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">
+                          <span key={index} className="bg-gray-100 text-black px-2 py-1 rounded-full text-sm">
                             {style}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-700">Not specified</p>
+                      <p className="text-black">Not specified</p>
                     )}
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-600 mb-1">Languages</h3>
+                    <h3 className="text-sm font-medium text-black mb-1">Languages</h3>
                     {user.travelPreferences.languages.length > 0 ? (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {user.travelPreferences.languages.map((language, index) => (
-                          <span key={index} className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">
+                          <span key={index} className="bg-gray-100 text-black px-2 py-1 rounded-full text-sm">
                             {language}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-700">Not specified</p>
+                      <p className="text-black">Not specified</p>
                     )}
                   </div>
                 </div>
@@ -441,14 +443,14 @@ export default function Profile() {
               {/* Upcoming Trips */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Upcoming Trips</h2>
+                  <h2 className="text-xl font-bold mb-4 text-black">Upcoming Trips</h2>
                   {user.upcomingTrips.length > 0 ? (
                     <div className="space-y-4">
                       {user.upcomingTrips.map((trip, index) => (
                         <div key={index} className="border-b border-gray-200 pb-4 last:border-0 last:pb-0">
                           <Link href={`/groups/${trip.groupId}`} className="block hover:bg-gray-50 p-2 -mx-2 rounded">
-                            <h3 className="font-medium">{trip.destination}</h3>
-                            <p className="text-sm text-gray-500">
+                            <h3 className="font-medium text-black">{trip.destination}</h3>
+                            <p className="text-sm text-black">
                               {new Date(trip.date).toLocaleDateString()}
                             </p>
                           </Link>
@@ -456,7 +458,7 @@ export default function Profile() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-700">No upcoming trips</p>
+                    <p className="text-black">No upcoming trips</p>
                   )}
                 </div>
               </div>
@@ -464,20 +466,22 @@ export default function Profile() {
               {/* Past Trips */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Past Trips</h2>
+                  <h2 className="text-xl font-bold mb-4 text-black">Past Trips</h2>
                   {user.pastTrips.length > 0 ? (
                     <div className="space-y-4">
                       {user.pastTrips.map((trip, index) => (
                         <div key={index} className="border-b border-gray-200 pb-4 last:border-0 last:pb-0">
-                          <h3 className="font-medium">{trip.destination}</h3>
-                          <p className="text-sm text-gray-500">
-                            {new Date(trip.date).toLocaleDateString()} • {trip.duration}
-                          </p>
+                          <Link href={`/past-trips/${trip.id}`} className="block hover:bg-gray-50 p-2 -mx-2 rounded">
+                            <h3 className="font-medium text-black">{trip.destination}</h3>
+                            <p className="text-sm text-black">
+                              {new Date(trip.date).toLocaleDateString()} • {trip.duration}
+                            </p>
+                          </Link>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-700">No past trips</p>
+                    <p className="text-black">No past trips</p>
                   )}
                 </div>
               </div>

@@ -72,8 +72,15 @@ export default function GroupDetail() {
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
   
   useEffect(() => {
+    // Check if user is logged in
+    const checkAuth = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      setIsLoggedIn(loggedIn);
+    };
+    
     // Simulate API fetch
     const fetchGroup = () => {
       const foundGroup = MOCK_GROUPS.find(g => g.id === params.id);
@@ -85,7 +92,12 @@ export default function GroupDetail() {
       setLoading(false);
     };
     
+    checkAuth();
     fetchGroup();
+    
+    // Add listener for auth changes
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, [params.id]);
   
   const handleJoinGroup = () => {
@@ -93,14 +105,14 @@ export default function GroupDetail() {
       setShowLoginModal(true);
     } else {
       // In a real app, this would send a request to join the group
+      setRequestSent(true);
       alert('Request to join group sent!');
     }
   };
   
   const handleLogin = () => {
-    // Simulate login
-    setIsLoggedIn(true);
-    setShowLoginModal(false);
+    // Redirect to login page with return URL
+    router.push(`/login?redirect=/groups/${params.id}`);
   };
   
   if (loading) {
@@ -108,7 +120,7 @@ export default function GroupDetail() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading group details...</p>
+          <p className="text-black">Loading group details...</p>
         </div>
       </div>
     );
@@ -119,7 +131,7 @@ export default function GroupDetail() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Group Not Found</h1>
-          <p className="text-gray-600 mb-6">The travel group you're looking for doesn't exist.</p>
+          <p className="text-black mb-6">The travel group you're looking for doesn't exist.</p>
           <Link 
             href="/search" 
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md"
@@ -138,22 +150,30 @@ export default function GroupDetail() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">{group.name}</h1>
-              <p className="text-gray-600 mb-1">{group.destination}</p>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-3xl font-bold mb-2 text-black">{group.name}</h1>
+              <p className="text-black mb-1">{group.destination}</p>
+              <p className="text-sm text-black">
                 {new Date(group.startDate).toLocaleDateString()} - {new Date(group.endDate).toLocaleDateString()}
               </p>
             </div>
             <div className="mt-4 md:mt-0">
               <button
                 onClick={handleJoinGroup}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md"
-                disabled={group.memberCount >= group.maxMembers}
+                className={`${
+                  requestSent 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700' 
+                } text-white font-bold py-2 px-6 rounded-md`}
+                disabled={group.memberCount >= group.maxMembers || requestSent}
               >
-                {group.memberCount >= group.maxMembers ? 'Group Full' : 'Join Group'}
+                {group.memberCount >= group.maxMembers 
+                  ? 'Group Full' 
+                  : requestSent 
+                    ? 'Pending Invitation' 
+                    : 'Join Group'}
               </button>
               {group.requiresApproval && (
-                <p className="text-xs text-gray-500 mt-1 text-center">Requires approval from creator</p>
+                <p className="text-xs text-black mt-1 text-center">Requires approval from creator</p>
               )}
             </div>
           </div>
@@ -167,15 +187,15 @@ export default function GroupDetail() {
           <div className="lg:col-span-2">
             {/* Description */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-bold mb-4">About This Group</h2>
-              <p className="text-gray-700 mb-4">{group.description}</p>
+              <h2 className="text-xl font-bold mb-4 text-black">About This Group</h2>
+              <p className="text-black mb-4">{group.description}</p>
               
-              <h3 className="font-bold text-lg mt-6 mb-2">Activities</h3>
+              <h3 className="font-bold text-lg mt-6 mb-2 text-black">Activities</h3>
               <div className="flex flex-wrap gap-2">
                 {group.activities.map((activity: string, index: number) => (
                   <span 
                     key={index} 
-                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
+                    className="bg-gray-100 text-black px-3 py-1 rounded-full text-sm"
                   >
                     {activity}
                   </span>
@@ -185,20 +205,20 @@ export default function GroupDetail() {
             
             {/* Itinerary */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-bold mb-4">Tentative Itinerary</h2>
+              <h2 className="text-xl font-bold mb-4 text-black">Tentative Itinerary</h2>
               {group.itinerary.map((day: any, index: number) => (
                 <div key={index} className="mb-4 pb-4 border-b border-gray-200 last:border-0">
-                  <h3 className="font-bold mb-2">
+                  <h3 className="font-bold mb-2 text-black">
                     Day {day.day}: {new Date(day.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                   </h3>
-                  <ul className="list-disc list-inside text-gray-700">
+                  <ul className="list-disc list-inside text-black">
                     {day.activities.map((activity: string, actIndex: number) => (
                       <li key={actIndex}>{activity}</li>
                     ))}
                   </ul>
                 </div>
               ))}
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-black mt-4">
                 This is a tentative itinerary and may change based on group preferences and local conditions.
               </p>
             </div>
@@ -208,14 +228,14 @@ export default function GroupDetail() {
           <div>
             {/* Accommodation */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-bold mb-4">Accommodation</h2>
-              <p className="text-gray-700">{group.accommodation}</p>
+              <h2 className="text-xl font-bold mb-4 text-black">Accommodation</h2>
+              <p className="text-black">{group.accommodation}</p>
             </div>
             
             {/* Group members */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Members</h2>
+                <h2 className="text-xl font-bold text-black">Members</h2>
                 <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                   {group.memberCount}/{group.maxMembers}
                 </span>
@@ -226,8 +246,8 @@ export default function GroupDetail() {
                   <div key={member.id} className="flex items-center">
                     <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
                     <div>
-                      <p className="font-medium">{member.name}</p>
-                      <p className="text-xs text-gray-500">{member.role}</p>
+                      <p className="font-medium text-black">{member.name}</p>
+                      <p className="text-xs text-black">{member.role}</p>
                     </div>
                   </div>
                 ))}
@@ -241,14 +261,14 @@ export default function GroupDetail() {
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Login Required</h2>
-            <p className="text-gray-700 mb-6">
+            <h2 className="text-xl font-bold mb-4 text-black">Login Required</h2>
+            <p className="text-black mb-6">
               You need to be logged in to join this group. Please log in or create an account.
             </p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50"
               >
                 Cancel
               </button>

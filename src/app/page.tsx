@@ -46,9 +46,9 @@ export default function Home() {
       </div>
 
       {/* How It Works */}
-      <div className="py-12">
+      <div className="py-12 bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">How It Works</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-white">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
@@ -68,8 +68,8 @@ export default function Home() {
                 <div className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="font-bold">{index + 1}</span>
                 </div>
-                <h3 className="font-bold text-lg mb-2 text-black">{step.title}</h3>
-                <p className="text-black">{step.description}</p>
+                <h3 className="font-bold text-lg mb-2 text-white">{step.title}</h3>
+                <p className="text-white">{step.description}</p>
               </div>
             ))}
           </div>
