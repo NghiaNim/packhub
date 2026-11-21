@@ -26,7 +26,7 @@ export default function Home() {
       {/* Featured Destinations */}
       <div className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Popular Destinations</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-black">Popular Destinations</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {['Bali, Indonesia', 'Barcelona, Spain', 'Tokyo, Japan'].map((destination) => (
               <div key={destination} className="bg-white rounded-lg shadow-md overflow-hidden">

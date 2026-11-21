@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { MessageSquare } from 'lucide-react';
 
 // Mock data for a single group (would be fetched from API in real app)
 const MOCK_GROUPS = [
@@ -73,12 +76,24 @@ export default function GroupDetail() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = () => {
       const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
       setIsLoggedIn(loggedIn);
+      
+      if (loggedIn) {
+        try {
+          const storedUser = localStorage.getItem('userData');
+          if (storedUser) {
+            setUserData(JSON.parse(storedUser));
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
     };
     
     // Simulate API fetch
@@ -113,6 +128,16 @@ export default function GroupDetail() {
   const handleLogin = () => {
     // Redirect to login page with return URL
     router.push(`/login?redirect=/groups/${params.id}`);
+  };
+  
+  const handleStartChat = (userId: string) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    
+    // Navigate to messages page with the user ID
+    router.push(`/messages?user=${userId}`);
   };
   
   if (loading) {
@@ -243,12 +268,27 @@ export default function GroupDetail() {
               
               <div className="space-y-4">
                 {group.members.map((member: any) => (
-                  <div key={member.id} className="flex items-center">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
-                    <div>
-                      <p className="font-medium text-black">{member.name}</p>
-                      <p className="text-xs text-black">{member.role}</p>
+                  <div key={member.id} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Avatar className="w-10 h-10 mr-3">
+                        <AvatarImage src={member.image || ''} />
+                        <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-black">{member.name}</p>
+                        <p className="text-xs text-black">{member.role}</p>
+                      </div>
                     </div>
+                    {isLoggedIn && member.id !== userData?.id && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleStartChat(member.id)}
+                        title="Send message"
+                      >
+                        <MessageSquare className="h-5 w-5" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

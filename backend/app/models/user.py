@@ -1,9 +1,11 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator, HttpUrl
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
 from bson import ObjectId
 from typing import ClassVar, Annotated, Any
+import re
+import uuid
 
 
 class TravelStyle(str, Enum):
@@ -18,14 +20,40 @@ class TravelExperience(str, Enum):
     EXPERIENCED = "experienced"
 
 
+class TravelPreferences(BaseModel):
+    destinations: List[str] = []
+    accommodation_types: List[str] = []
+    travel_styles: List[str] = []
+    budget_range: Optional[str] = None
+    languages: List[str] = []
+
+
+class EmergencyContact(BaseModel):
+    name: str = ""
+    relationship: str = ""
+    phone_number: str = ""
+
+
 class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
     full_name: str = Field(..., min_length=2, max_length=100)
 
+    @validator('username')
+    def username_must_be_valid(cls, v):
+        if not re.match(r'^[a-zA-Z0-9_-]{3,30}$', v):
+            raise ValueError('Username must be 3-30 characters and contain only letters, numbers, underscores, or hyphens')
+        return v
+
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
+
+    @validator('password')
+    def password_must_be_strong(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        return v
 
 
 class UserLogin(BaseModel):
@@ -42,6 +70,9 @@ class UserProfile(BaseModel):
     experience_level: Optional[TravelExperience] = None
     languages: List[str] = []
     social_media: Optional[dict] = None
+    profile_image: Optional[HttpUrl] = None
+    travel_preferences: Optional[TravelPreferences] = None
+    social_links: Dict[str, HttpUrl] = {}
 
 
 class UserInDB(UserBase):
@@ -74,38 +105,28 @@ class UserUpdate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user: dict
 
 
 class TokenData(BaseModel):
     user_id: Optional[str] = None
 
 
-class PyObjectId(ObjectId):
+class PyObjectId(str):
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
 
     @classmethod
     def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid ObjectId")
-        return ObjectId(v)
-    
-    @classmethod
-    def __get_pydantic_json_schema__(cls, _schema_builder):
-        return {"type": "string"}
-
-
-class EmergencyContact(BaseModel):
-    name: str = ""
-    relationship: str = ""
-    phone_number: str = ""
-
-
-class TravelPreferences(BaseModel):
-    accommodation_types: List[str] = []
-    travel_styles: List[str] = []
-    languages: List[str] = []
+        if not isinstance(v, str):
+            raise TypeError('string required')
+        # Validate if it's a proper UUID format
+        try:
+            uuid.UUID(v)
+            return v
+        except ValueError:
+            raise ValueError("Invalid ID format")
 
 
 class Trip(BaseModel):
@@ -116,22 +137,16 @@ class Trip(BaseModel):
 
 
 class User(BaseModel):
-    id: Optional[str] = None
-    name: str
-    username: str
+    id: str
     email: EmailStr
-    password: str
-    bio: str = ""
-    date_of_birth: Optional[datetime] = None
-    gender: Optional[str] = None
-    phone_number: str = ""
-    profile_image_url: str = ""
-    emergency_contact: EmergencyContact = Field(default_factory=EmergencyContact)
-    travel_preferences: TravelPreferences = Field(default_factory=TravelPreferences)
-    upcoming_trips: List[Trip] = []
-    past_trips: List[Trip] = []
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    username: str
+    full_name: str
+    profile: Optional[UserProfile] = None
+    is_active: bool = True
+
+    def is_authenticated(self) -> bool:
+        """Check if the user is authenticated"""
+        return self.is_active
 
     model_config = {
         "populate_by_name": True,

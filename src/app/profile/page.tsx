@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { MessageSquare, Pencil } from 'lucide-react';
 
 // Mock user data (would come from API in real app)
 const MOCK_USER = {
@@ -125,14 +127,27 @@ export default function Profile() {
               <p className="text-gray-600 mb-1">@{user.username}</p>
               <p className="text-gray-600">{user.email}</p>
             </div>
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
-              >
-                Edit Profile
-              </button>
-            )}
+            <div className="flex flex-col sm:flex-row gap-2">
+              {!isEditing && (
+                <>
+                  <Button
+                    onClick={() => router.push(`/messages?user=${user.id}`)}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Message
+                  </Button>
+                  <Button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
         

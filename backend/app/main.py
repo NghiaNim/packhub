@@ -17,6 +17,7 @@ from app.routers.auth import router as auth_router
 from app.routers.users import router as users_router
 from app.routers.travel_intents import router as travel_intents_router
 from app.routers import chat  # Import our chat router
+from app.routers.messages import router as messages_router  # Import the messages router
 
 # Load environment variables
 load_dotenv()
@@ -42,6 +43,7 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(travel_intents_router)
 app.include_router(chat.router)  # Add our chat router
+app.include_router(messages_router)  # Add the messages router
 
 @app.get("/")
 async def root():
